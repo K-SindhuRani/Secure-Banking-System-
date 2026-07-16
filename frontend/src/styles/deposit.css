@@ -1,0 +1,62 @@
+.deposit-card{
+
+    width:450px;
+    margin-top:40px;
+
+    background:white;
+
+    padding:40px;
+
+    border-radius:20px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+
+}
+
+.deposit-card h3{
+
+    margin-bottom:25px;
+
+}
+
+.deposit-card input{
+
+    width:100%;
+
+    padding:15px;
+
+    border-radius:10px;
+
+    border:1px solid #ccc;
+
+    margin-bottom:20px;
+
+    font-size:18px;
+
+}
+
+.deposit-card button{
+
+    width:100%;
+
+    padding:15px;
+
+    border:none;
+
+    background:#0F62FE;
+
+    color:white;
+
+    font-size:18px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+}
+
+.deposit-card button:hover{
+
+    background:#1E3A8A;
+
+}

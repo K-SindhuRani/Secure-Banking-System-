@@ -1,0 +1,49 @@
+.statement-table{
+
+    width:100%;
+
+    margin-top:40px;
+
+    border-collapse:collapse;
+
+    background:white;
+
+    border-radius:15px;
+
+    overflow:hidden;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.12);
+
+}
+
+.statement-table th{
+
+    background:#0F62FE;
+
+    color:white;
+
+    padding:18px;
+
+}
+
+.statement-table td{
+
+    padding:18px;
+
+    border-bottom:1px solid #eee;
+
+}
+
+.statement-table tr:hover{
+
+    background:#f7f9ff;
+
+}
+
+.success{
+
+    color:green;
+
+    font-weight:bold;
+
+}
