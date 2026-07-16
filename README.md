@@ -155,7 +155,7 @@ spring.datasource.password=YOUR_PASSWORD
 
 ## 👩‍💻 Developed By
 
-**Sindhu Rani**
+**Kotti Sindhu Rani**
 
 B.Tech – Computer Science & Engineering
 
