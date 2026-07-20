@@ -80,7 +80,7 @@ function Statement() {
 
                                     <td>{t.id}</td>
 
-                                    <td>{t.type}</td>
+                                    <td>{t.transactionType}</td>
 
                                     <td>₹ {t.amount}</td>
 

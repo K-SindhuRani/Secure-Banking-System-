@@ -1,44 +1,77 @@
 import Sidebar from "../components/Sidebar";
 import "../styles/withdraw.css";
 import { useState } from "react";
+import { toast } from "react-toastify";
 import api from "../api/api";
 
 function Withdraw() {
 
     const [accountNumber, setAccountNumber] = useState("");
     const [amount, setAmount] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const withdrawMoney = async () => {
 
         if (!accountNumber || !amount) {
-            alert("Fill all fields");
+
+            toast.warning("Please fill all fields");
+
+            return;
+        }
+
+        if (Number(amount) <= 0) {
+
+            toast.warning("Amount should be greater than zero");
+
             return;
         }
 
         try {
 
+            setLoading(true);
+
             await api.put(`/accounts/withdraw/${accountNumber}/${amount}`);
 
-            alert("Withdrawal Successful");
+            toast.success("Amount Withdrawn Successfully");
 
             setAccountNumber("");
             setAmount("");
 
         } catch (error) {
 
-            if (error.response?.data?.message) {
-                alert(error.response.data.message);
+            console.log(error);
+
+            if (error.response) {
+
+                if (typeof error.response.data === "string") {
+
+                    toast.error(error.response.data);
+
+                } else {
+
+                    toast.error(
+                        error.response.data.message ||
+                        "Withdrawal Failed"
+                    );
+
+                }
+
             } else {
-                alert("Withdrawal Failed");
+
+                toast.error("Server not responding");
+
             }
 
-            console.log(error);
+        } finally {
+
+            setLoading(false);
 
         }
 
     };
 
     return (
+
         <>
             <Sidebar />
 
@@ -64,8 +97,11 @@ function Withdraw() {
                         onChange={(e) => setAmount(e.target.value)}
                     />
 
-                    <button onClick={withdrawMoney}>
-                        Withdraw
+                    <button
+                        onClick={withdrawMoney}
+                        disabled={loading}
+                    >
+                        {loading ? "Processing..." : "Withdraw"}
                     </button>
 
                 </div>
@@ -73,7 +109,9 @@ function Withdraw() {
             </div>
 
         </>
+
     );
+
 }
 
 export default Withdraw;

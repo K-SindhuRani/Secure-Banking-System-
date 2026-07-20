@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import com.securebank.securebank.dto.BalanceResponse;
 import com.securebank.securebank.dto.TransferRequest;
 import com.securebank.securebank.entity.Account;
 import com.securebank.securebank.service.AccountService;
+
 
 @RestController
 @RequestMapping("/accounts")
@@ -72,4 +74,10 @@ public class AccountController {
     public String transferMoney(@RequestBody TransferRequest request) {
         return accountService.transferMoney(request);
     }
+
+    @DeleteMapping("/{accountNumber}")
+    public String deleteAccount(@PathVariable String accountNumber){
+        return accountService.deleteAccount(accountNumber);
+    }
+
 }

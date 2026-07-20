@@ -1,0 +1,82 @@
+.users-page{
+
+    margin-left:280px;
+    padding:40px;
+    background:#f4f7fc;
+    min-height:100vh;
+
+}
+
+.users-page h1{
+
+    color:#183883;
+    margin-bottom:25px;
+
+}
+
+.search-box{
+
+    width:350px;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    margin-bottom:25px;
+
+}
+
+.users-table{
+
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:15px;
+    overflow:hidden;
+    box-shadow:0 10px 20px rgba(0,0,0,.08);
+
+}
+
+.users-table th{
+
+    background:#183883;
+    color:white;
+    padding:15px;
+
+}
+
+.users-table td{
+
+    padding:15px;
+    border-bottom:1px solid #eee;
+
+}
+
+.users-table tr:hover{
+
+    background:#f8f9ff;
+
+}
+.delete-btn{
+
+    background:#dc3545;
+
+    color:white;
+
+    border:none;
+
+    padding:8px 16px;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.delete-btn:hover{
+
+    background:#b91c1c;
+
+    transform:scale(1.05);
+
+}

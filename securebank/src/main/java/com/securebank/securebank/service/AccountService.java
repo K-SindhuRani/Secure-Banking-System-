@@ -229,4 +229,15 @@ public class AccountService {
 
         return account.getBalance();
     }
+    public String deleteAccount(String accountNumber) {
+
+    Account account = accountRepository
+            .findByAccountNumber(accountNumber)
+            .orElseThrow(() ->
+                    new RuntimeException("Account not found"));
+
+    accountRepository.delete(account);
+
+    return "Account Deleted Successfully";
+}
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import Sidebar from "../components/Sidebar";
 import api from "../api/api";
 
@@ -7,15 +8,37 @@ function Transfer() {
     const [fromAccount, setFromAccount] = useState("");
     const [toAccount, setToAccount] = useState("");
     const [amount, setAmount] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const transferMoney = async () => {
 
         if (!fromAccount || !toAccount || !amount) {
-            alert("Fill all fields");
+
+            toast.warning("Please fill all fields");
+
             return;
+
+        }
+
+        if (fromAccount === toAccount) {
+
+            toast.warning("Sender and Receiver accounts cannot be the same");
+
+            return;
+
+        }
+
+        if (Number(amount) <= 0) {
+
+            toast.warning("Amount should be greater than zero");
+
+            return;
+
         }
 
         try {
+
+            setLoading(true);
 
             await api.post("/accounts/transfer", {
 
@@ -25,7 +48,7 @@ function Transfer() {
 
             });
 
-            alert("Money Transferred Successfully");
+            toast.success("Money Transferred Successfully");
 
             setFromAccount("");
             setToAccount("");
@@ -35,13 +58,34 @@ function Transfer() {
 
         catch (error) {
 
-            if (error.response?.data) {
-                alert(error.response.data);
+            console.log(error);
+
+            if (error.response) {
+
+                if (typeof error.response.data === "string") {
+
+                    toast.error(error.response.data);
+
+                } else {
+
+                    toast.error(
+                        error.response.data.message ||
+                        "Transfer Failed"
+                    );
+
+                }
+
             } else {
-                alert("Transfer Failed");
+
+                toast.error("Server not responding");
+
             }
 
-            console.log(error);
+        }
+
+        finally {
+
+            setLoading(false);
 
         }
 
@@ -81,8 +125,11 @@ function Transfer() {
                         onChange={(e) => setAmount(e.target.value)}
                     />
 
-                    <button onClick={transferMoney}>
-                        Transfer
+                    <button
+                        onClick={transferMoney}
+                        disabled={loading}
+                    >
+                        {loading ? "Transferring..." : "Transfer"}
                     </button>
 
                 </div>
@@ -90,6 +137,7 @@ function Transfer() {
             </div>
 
         </>
+
     );
 
 }

@@ -1,69 +1,79 @@
 .dashboard{
-    margin-left:270px;
+    margin-left:280px;
     padding:40px;
     min-height:100vh;
-    background:#f5f8ff;
+    background:#f4f7fc;
 }
 
 .dashboard h1{
     font-size:42px;
-    font-weight:700;
-    color:#1E3A8A;
+    color:#1e3a8a;
+    margin-bottom:5px;
 }
 
 .dashboard p{
     color:#666;
-    margin-bottom:30px;
+    margin-bottom:35px;
 }
+
+/* Cards */
 
 .cards{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
     gap:25px;
+    margin-bottom:40px;
 }
 
 .card-box{
     background:white;
-    border-radius:20px;
+    border-radius:18px;
     padding:25px;
-    box-shadow:0 10px 30px rgba(0,0,0,.08);
-    transition:.35s;
+    box-shadow:0 10px 20px rgba(0,0,0,.08);
+    transition:.3s;
 }
 
 .card-box:hover{
-    transform:translateY(-8px);
-    box-shadow:0 18px 40px rgba(0,0,0,.15);
+    transform:translateY(-6px);
 }
 
 .card-title{
+    margin-top:15px;
     color:#666;
-    font-size:18px;
+    font-size:16px;
 }
 
 .card-value{
-    font-size:32px;
+    margin-top:12px;
+    font-size:30px;
     font-weight:bold;
-    color:#0F62FE;
-    margin-top:10px;
+    color:#183883;
 }
 
+/* Table */
+
 .section{
-    margin-top:40px;
+    background:white;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 10px 20px rgba(0,0,0,.08);
+}
+
+.section h2{
+    margin-bottom:20px;
+    color:#183883;
 }
 
 .transaction-table{
     width:100%;
     border-collapse:collapse;
-    background:white;
-    border-radius:15px;
-    overflow:hidden;
-    box-shadow:0 8px 25px rgba(0,0,0,.08);
 }
 
 .transaction-table th{
-    background:#0F62FE;
+    background:#183883;
     color:white;
     padding:15px;
+    text-align:left;
 }
 
 .transaction-table td{

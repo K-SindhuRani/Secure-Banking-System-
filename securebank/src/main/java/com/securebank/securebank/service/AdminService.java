@@ -5,9 +5,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.securebank.securebank.dto.DashboardStats;
 import com.securebank.securebank.entity.Account;
 import com.securebank.securebank.entity.User;
 import com.securebank.securebank.repository.AccountRepository;
+import com.securebank.securebank.repository.TransactionRepository;
 import com.securebank.securebank.repository.UserRepository;
 
 @Service
@@ -18,6 +20,9 @@ public class AdminService {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     // View All Users
     public List<User> getAllUsers() {
@@ -64,4 +69,17 @@ public class AdminService {
         return "Account Activated Successfully";
     }
 
+    // Dashboard Statistics
+    public DashboardStats getDashboardStats() {
+
+        return new DashboardStats(
+
+                userRepository.count(),
+
+                accountRepository.count(),
+
+                transactionRepository.count()
+
+        );
+    }
 }

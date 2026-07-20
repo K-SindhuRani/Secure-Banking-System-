@@ -5,6 +5,8 @@ function Sidebar() {
 
     const navigate = useNavigate();
 
+    const role = localStorage.getItem("role");
+
     const logout = () => {
         localStorage.clear();
         navigate("/");
@@ -26,35 +28,54 @@ function Sidebar() {
                 Accounts
             </Link>
 
-            <Link to="/deposit">
-                <i className="bi bi-cash-stack"></i>
-                Deposit
-            </Link>
+            {/* CUSTOMER MENU */}
+            {role === "CUSTOMER" && (
+                <>
 
-            <Link to="/withdraw">
-                <i className="bi bi-arrow-down-circle"></i>
-                Withdraw
-            </Link>
+                    <Link to="/deposit">
+                        <i className="bi bi-cash-stack"></i>
+                        Deposit
+                    </Link>
 
-            <Link to="/transfer">
-                <i className="bi bi-arrow-left-right"></i>
-                Transfer
-            </Link>
+                    <Link to="/withdraw">
+                        <i className="bi bi-arrow-down-circle"></i>
+                        Withdraw
+                    </Link>
 
-            <Link to="/mini-statement">
-               <i className="bi bi-clock-history"></i>
-                Mini Statement
-            </Link>
+                    <Link to="/transfer">
+                        <i className="bi bi-arrow-left-right"></i>
+                        Transfer
+                    </Link>
 
-            <Link to="/statement">
-                <i className="bi bi-file-earmark-text"></i>
-                Statement
-            </Link>
-            
-            <Link to="/profile">
-                <i className="bi bi-person-circle"></i>
-                Profile
-            </Link>
+                    <Link to="/mini-statement">
+                        <i className="bi bi-clock-history"></i>
+                        Mini Statement
+                    </Link>
+
+                    <Link to="/statement">
+                        <i className="bi bi-file-earmark-text"></i>
+                        Statement
+                    </Link>
+
+                    <Link to="/profile">
+                        <i className="bi bi-person-circle"></i>
+                        Profile
+                    </Link>
+
+                </>
+            )}
+
+            {/* ADMIN MENU */}
+            {role === "ADMIN" && (
+                <>
+
+                    <Link to="/create-account">
+                        <i className="bi bi-plus-circle"></i>
+                        Create Account
+                    </Link>
+
+                </>
+            )}
 
             <button
                 className="btn btn-danger mt-4"
