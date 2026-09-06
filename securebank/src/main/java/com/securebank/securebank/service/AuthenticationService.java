@@ -29,29 +29,48 @@ public class AuthenticationService {
 
     public LoginResponse login(LoginRequest request) {
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> {
-                    logger.error("Login Failed : Email {} Not Found", request.getEmail());
-                    return new RuntimeException("Invalid Email");
-                });
+        User user =
+                userRepository
+                        .findByEmail(request.getEmail())
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Invalid Email or Password"
+                                )
+                        );
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(
+                request.getPassword(),
+                user.getPassword())) {
 
-            logger.error("Login Failed : Invalid Password for {}", request.getEmail());
+            logger.error(
+                    "Login Failed : Invalid Password for {}",
+                    request.getEmail()
+            );
 
-            throw new RuntimeException("Invalid Password");
+            throw new RuntimeException(
+                    "Invalid Email or Password"
+            );
         }
 
-        String token = jwtService.generateToken(user.getEmail());
+        if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
 
-        logger.info("User Logged In Successfully : {}", user.getEmail());
+            throw new RuntimeException(
+                    "User Account is Blocked"
+            );
+        }
+
+        String token =
+                jwtService.generateToken(user.getEmail());
+
+        logger.info(
+                "User Logged In Successfully : {}",
+                user.getEmail()
+        );
 
         return new LoginResponse(
-
-        token,
-        user.getRole(),
-        "Login Successful"
-
-       );
+                token,
+                user.getRole(),
+                "Login Successful"
+        );
     }
 }

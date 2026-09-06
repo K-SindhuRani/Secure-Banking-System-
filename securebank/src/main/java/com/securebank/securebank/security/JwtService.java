@@ -1,11 +1,12 @@
 package com.securebank.securebank.security;
 
+import java.util.Date;
+
+import org.springframework.stereotype.Service;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 @Service
 public class JwtService {
@@ -13,34 +14,50 @@ public class JwtService {
     private static final String SECRET_KEY =
             "SecureBankApplicationSecretKeyForJWTAuthentication2026";
 
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
+    private static final long EXPIRATION_TIME =
+            1000L * 60 * 60 * 24;
 
-    // Generate Token
+    // ==============================
+    // GENERATE TOKEN
+    // ==============================
+
     public String generateToken(String email) {
 
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis()
-                        + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .setExpiration(
+                        new Date(
+                                System.currentTimeMillis()
+                                        + EXPIRATION_TIME
+                        )
+                )
+                .signWith(
+                        SignatureAlgorithm.HS256,
+                        SECRET_KEY
+                )
                 .compact();
-
     }
 
-    // Extract Email
+    // ==============================
+    // EXTRACT EMAIL
+    // ==============================
+
     public String extractEmail(String token) {
 
-        Claims claims = Jwts.parser()
-                .setSigningKey(SECRET_KEY)
-                .parseClaimsJws(token)
-                .getBody();
+        Claims claims =
+                Jwts.parser()
+                        .setSigningKey(SECRET_KEY)
+                        .parseClaimsJws(token)
+                        .getBody();
 
         return claims.getSubject();
-
     }
 
-    // Validate Token
+    // ==============================
+    // VALIDATE TOKEN
+    // ==============================
+
     public boolean validateToken(String token) {
 
         try {
@@ -54,9 +71,6 @@ public class JwtService {
         } catch (Exception e) {
 
             return false;
-
         }
-
     }
-
 }

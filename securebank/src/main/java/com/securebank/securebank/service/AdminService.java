@@ -24,16 +24,26 @@ public class AdminService {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    // View All Users
+    // ==============================
+    // ALL USERS
+    // ==============================
+
     public List<User> getAllUsers() {
+
         return userRepository.findAll();
     }
 
-    // Delete User
+    // ==============================
+    // DELETE USER
+    // ==============================
+
     public String deleteUser(Long id) {
 
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User Not Found");
+
+            throw new RuntimeException(
+                    "User Not Found"
+            );
         }
 
         userRepository.deleteById(id);
@@ -41,12 +51,23 @@ public class AdminService {
         return "User Deleted Successfully";
     }
 
-    // Block Account
-    public String blockAccount(String accountNumber) {
+    // ==============================
+    // BLOCK ACCOUNT
+    // ==============================
 
-        Account account = accountRepository
-                .findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account Not Found"));
+    public String blockAccount(
+            String accountNumber) {
+
+        Account account =
+                accountRepository
+                        .findByAccountNumber(
+                                accountNumber
+                        )
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Account Not Found"
+                                )
+                        );
 
         account.setStatus("BLOCKED");
 
@@ -55,12 +76,23 @@ public class AdminService {
         return "Account Blocked Successfully";
     }
 
-    // Unblock Account
-    public String unblockAccount(String accountNumber) {
+    // ==============================
+    // UNBLOCK ACCOUNT
+    // ==============================
 
-        Account account = accountRepository
-                .findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account Not Found"));
+    public String unblockAccount(
+            String accountNumber) {
+
+        Account account =
+                accountRepository
+                        .findByAccountNumber(
+                                accountNumber
+                        )
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Account Not Found"
+                                )
+                        );
 
         account.setStatus("ACTIVE");
 
@@ -69,17 +101,16 @@ public class AdminService {
         return "Account Activated Successfully";
     }
 
-    // Dashboard Statistics
+    // ==============================
+    // DASHBOARD
+    // ==============================
+
     public DashboardStats getDashboardStats() {
 
         return new DashboardStats(
-
                 userRepository.count(),
-
                 accountRepository.count(),
-
                 transactionRepository.count()
-
         );
     }
 }

@@ -2,20 +2,16 @@ package com.securebank.securebank.service;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.securebank.securebank.dto.ProfileUpdateRequest;
 import com.securebank.securebank.entity.User;
 import com.securebank.securebank.repository.UserRepository;
 
 @Service
 public class UserService {
-
-    private static final Logger logger =
-            LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -23,48 +19,156 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Register User
+    // ==============================
+    // REGISTER USER
+    // ==============================
+
     public User registerUser(User user) {
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (userRepository
+                .findByEmail(user.getEmail())
+                .isPresent()) {
 
-        User savedUser = userRepository.save(user);
+            throw new RuntimeException(
+                    "Email already registered"
+            );
+        }
 
-        logger.info("New User Registered : {}", savedUser.getEmail());
+        if (user.getPhone() != null &&
+                userRepository.findAll()
+                        .stream()
+                        .anyMatch(existing ->
+                                user.getPhone()
+                                        .equals(existing.getPhone()))) {
 
-        return savedUser;
+            throw new RuntimeException(
+                    "Phone number already registered"
+            );
+        }
+
+        user.setPassword(
+                passwordEncoder.encode(user.getPassword())
+        );
+
+        user.setRole("CUSTOMER");
+        user.setStatus("ACTIVE");
+
+        return userRepository.save(user);
     }
 
-    // Get All Users
-    public List<User> getAllUsers() {
+    // ==============================
+    // GET ALL USERS
+    // ==============================
 
-        logger.info("Fetching All Users");
+    public List<User> getAllUsers() {
 
         return userRepository.findAll();
     }
 
-    // Get User By Id
+    // ==============================
+    // GET USER BY ID
+    // ==============================
+
     public User getUserById(Long id) {
 
-        logger.info("Fetching User : {}", id);
-
-        return userRepository.findById(id).orElse(null);
+        return userRepository
+                .findById(id)
+                .orElse(null);
     }
 
-    // Delete User
+    // ==============================
+    // DELETE USER
+    // ==============================
+
     public String deleteUser(Long id) {
 
         if (!userRepository.existsById(id)) {
-
-            logger.error("Delete Failed : User {} Not Found", id);
 
             return "User not found";
         }
 
         userRepository.deleteById(id);
 
-        logger.info("User Deleted : {}", id);
-
         return "User deleted successfully";
+    }
+
+    // ==============================
+    // GET PROFILE
+    // ==============================
+
+    public User getProfile(String email) {
+
+        return userRepository
+                .findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "User Not Found"
+                        )
+                );
+    }
+
+    // ==============================
+    // UPDATE PROFILE
+    // ==============================
+
+    public User updateProfile(
+            String email,
+            ProfileUpdateRequest request) {
+
+        User user =
+                userRepository
+                        .findByEmail(email)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "User Not Found"
+                                )
+                        );
+
+        if (request.getFullName() != null &&
+                !request.getFullName().isBlank()) {
+
+            user.setFullName(
+                    request.getFullName()
+            );
+        }
+
+        if (request.getPhone() != null &&
+                !request.getPhone().isBlank()) {
+
+            user.setPhone(
+                    request.getPhone()
+            );
+        }
+
+        if (request.getAddress() != null) {
+
+            user.setAddress(
+                    request.getAddress()
+            );
+        }
+
+        if (request.getCity() != null) {
+
+            user.setCity(
+                    request.getCity()
+            );
+        }
+
+        if (request.getPincode() != null) {
+
+            user.setPincode(
+                    request.getPincode()
+            );
+        }
+
+        if (request.getProfileImage() != null &&
+                !request.getProfileImage().isBlank()) {
+
+            user.setProfileImage(
+                    request.getProfileImage()
+            );
+        }
+
+        return userRepository.save(user);
     }
 }

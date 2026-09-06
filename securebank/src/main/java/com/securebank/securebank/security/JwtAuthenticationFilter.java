@@ -27,52 +27,84 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private CustomUserDetailsService customUserDetailsService;
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
+    protected boolean shouldNotFilter(
+            HttpServletRequest request) {
 
         String path = request.getServletPath();
 
-        return path.startsWith("/auth")
-                || (path.equals("/users") && request.getMethod().equals("POST"));
+        // Login and registration do not need JWT
+        if (path.startsWith("/auth")) {
+            return true;
+        }
+
+        if (path.equals("/users")
+                && request.getMethod().equalsIgnoreCase("POST")) {
+            return true;
+        }
+
+        // Allow CORS preflight
+        if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        String authHeader =
+                request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // No JWT supplied
+        if (authHeader == null ||
+                !authHeader.startsWith("Bearer ")) {
+
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
+        String token =
+                authHeader.substring(7);
 
+        // Invalid JWT
         if (!jwtService.validateToken(token)) {
+
             filterChain.doFilter(request, response);
             return;
         }
 
-        String email = jwtService.extractEmail(token);
+        String email =
+                jwtService.extractEmail(token);
 
         if (email != null &&
-                SecurityContextHolder.getContext().getAuthentication() == null) {
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication() == null) {
 
             UserDetails userDetails =
-                    customUserDetailsService.loadUserByUsername(email);
+                    customUserDetailsService
+                            .loadUserByUsername(email);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
-                            userDetails.getAuthorities());
+                            userDetails.getAuthorities()
+                    );
 
             authentication.setDetails(
-                    new WebAuthenticationDetailsSource().buildDetails(request));
+                    new WebAuthenticationDetailsSource()
+                            .buildDetails(request)
+            );
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContextHolder
+                    .getContext()
+                    .setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);

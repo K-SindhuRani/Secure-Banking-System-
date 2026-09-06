@@ -19,4 +19,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             String fromAccount,
             String toAccount
     );
+
+    List<Transaction> findTop10ByOrderByTransactionDateDesc();
 }

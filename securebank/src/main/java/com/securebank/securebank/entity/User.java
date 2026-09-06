@@ -61,6 +61,13 @@ public class User {
     @NotBlank(message = "Address is required")
     private String address;
 
+    private String city;
+
+    private String pincode;
+
+    @Column(name = "profile_image")
+     private String profileImage;
+
     private String role = "CUSTOMER";
 
     private String status = "ACTIVE";
@@ -68,4 +75,5 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Account> accounts;
+
 }

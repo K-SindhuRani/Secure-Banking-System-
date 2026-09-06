@@ -7,6 +7,7 @@ import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,76 +33,116 @@ public class AccountService {
     @Autowired
     private TransactionService transactionService;
 
-    // Open Bank Account
-    public Account createAccount(Long userId, Account account) {
+    // ==============================
+    // CREATE ACCOUNT
+    // ==============================
 
-        Optional<User> optionalUser = userRepository.findById(userId);
+    public Account createAccount(
+            Long userId,
+            Account account) {
+
+        Optional<User> optionalUser =
+                userRepository.findById(userId);
 
         if (optionalUser.isEmpty()) {
 
-            logger.error("Account Creation Failed : User {} Not Found", userId);
-            throw new RuntimeException("User Not Found");
+            throw new RuntimeException(
+                    "User Not Found"
+            );
+        }
+
+        if (account.getBalance() == null) {
+            account.setBalance(0.0);
+        }
+
+        if (account.getBalance() < 0) {
+            throw new RuntimeException(
+                    "Initial balance cannot be negative"
+            );
         }
 
         account.setUser(optionalUser.get());
         account.setCreatedDate(LocalDate.now());
         account.setStatus("ACTIVE");
-        account.setAccountNumber(generateAccountNumber());
-
-        Account savedAccount = accountRepository.save(account);
-
-        logger.info(
-                "Account Created Successfully | Account Number : {} | User ID : {}",
-                savedAccount.getAccountNumber(),
-                userId
+        account.setAccountNumber(
+                generateAccountNumber()
         );
 
-        return savedAccount;
+        return accountRepository.save(account);
     }
 
-    // Generate Random Account Number
+    // ==============================
+    // GENERATE ACCOUNT NUMBER
+    // ==============================
+
     private String generateAccountNumber() {
 
         Random random = new Random();
 
-        return "SB" + (10000000 + random.nextInt(90000000));
+        String accountNumber;
+
+        do {
+
+            accountNumber =
+                    "SB" +
+                    (10000000 +
+                            random.nextInt(90000000));
+
+        } while (
+                accountRepository
+                        .findByAccountNumber(accountNumber)
+                        .isPresent()
+        );
+
+        return accountNumber;
     }
 
-    // Get All Accounts
-    public List<Account> getAllAccounts() {
+    // ==============================
+    // GET ALL ACCOUNTS
+    // ==============================
 
-        logger.info("Fetching All Accounts");
+    public List<Account> getAllAccounts() {
 
         return accountRepository.findAll();
     }
 
-    // Get Account By Account Number
-    public Account getAccountByNumber(String accountNumber) {
+    // ==============================
+    // GET ACCOUNT
+    // ==============================
 
-        logger.info("Fetching Account : {}", accountNumber);
+    public Account getAccountByNumber(
+            String accountNumber) {
 
         return accountRepository
                 .findByAccountNumber(accountNumber)
-                .orElse(null);
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Account Not Found"
+                        )
+                );
     }
 
-    // Deposit
-    public Account deposit(String accountNumber, Double amount) {
+    // ==============================
+    // DEPOSIT
+    // ==============================
 
-        Account account = accountRepository
-                .findByAccountNumber(accountNumber)
-                .orElse(null);
+    public Account deposit(
+            String accountNumber,
+            Double amount) {
 
-        if (account == null) {
+        validateAmount(amount);
 
-            logger.error("Deposit Failed : Account {} Not Found", accountNumber);
+        Account account =
+                getAccountByNumber(accountNumber);
 
-            throw new RuntimeException("Account Not Found");
-        }
+        checkAccountActive(account);
 
-        account.setBalance(account.getBalance() + amount);
+        account.setBalance(
+                account.getBalance() + amount
+        );
 
-        Account updated = accountRepository.save(account);
+        Account updated =
+                accountRepository.save(account);
 
         transactionService.saveTransaction(
                 "DEPOSIT",
@@ -111,43 +152,37 @@ public class AccountService {
                 "SUCCESS"
         );
 
-        logger.info(
-                "Deposit Successful | Account : {} | Amount : {} | Balance : {}",
-                accountNumber,
-                amount,
-                updated.getBalance()
-        );
-
         return updated;
     }
 
-    // Withdraw
-    public Account withdraw(String accountNumber, Double amount) {
+    // ==============================
+    // WITHDRAW
+    // ==============================
 
-        Account account = accountRepository
-                .findByAccountNumber(accountNumber)
-                .orElse(null);
+    public Account withdraw(
+            String accountNumber,
+            Double amount) {
 
-        if (account == null) {
+        validateAmount(amount);
 
-            logger.error("Withdraw Failed : Account {} Not Found", accountNumber);
+        Account account =
+                getAccountByNumber(accountNumber);
 
-            throw new RuntimeException("Account Not Found");
-        }
+        checkAccountActive(account);
 
         if (account.getBalance() < amount) {
 
-            logger.error(
-                    "Withdraw Failed : Insufficient Balance | Account : {}",
-                    accountNumber
+            throw new RuntimeException(
+                    "Insufficient Balance"
             );
-
-            throw new RuntimeException("Insufficient Balance");
         }
 
-        account.setBalance(account.getBalance() - amount);
+        account.setBalance(
+                account.getBalance() - amount
+        );
 
-        Account updated = accountRepository.save(account);
+        Account updated =
+                accountRepository.save(account);
 
         transactionService.saveTransaction(
                 "WITHDRAW",
@@ -157,41 +192,71 @@ public class AccountService {
                 "SUCCESS"
         );
 
-        logger.info(
-                "Withdraw Successful | Account : {} | Amount : {} | Balance : {}",
-                accountNumber,
-                amount,
-                updated.getBalance()
-        );
-
         return updated;
     }
 
-    // Transfer Money
+    // ==============================
+    // TRANSFER
+    // ==============================
+
     @Transactional
-    public String transferMoney(TransferRequest request) {
+    public String transferMoney(
+            TransferRequest request) {
 
-        Account sender = accountRepository
-                .findByAccountNumber(request.getFromAccount())
-                .orElseThrow(() -> new RuntimeException("Sender Account Not Found"));
-
-        Account receiver = accountRepository
-                .findByAccountNumber(request.getToAccount())
-                .orElseThrow(() -> new RuntimeException("Receiver Account Not Found"));
-
-        if (sender.getBalance() < request.getAmount()) {
-
-            logger.error(
-                    "Transfer Failed : Insufficient Balance | Account : {}",
-                    request.getFromAccount()
+        if (request == null) {
+            throw new RuntimeException(
+                    "Transfer request cannot be empty"
             );
-
-            throw new RuntimeException("Insufficient Balance");
         }
 
-        sender.setBalance(sender.getBalance() - request.getAmount());
+        validateAmount(request.getAmount());
 
-        receiver.setBalance(receiver.getBalance() + request.getAmount());
+        if (request.getFromAccount() == null ||
+                request.getToAccount() == null) {
+
+            throw new RuntimeException(
+                    "Account numbers are required"
+            );
+        }
+
+        if (request.getFromAccount()
+                .equals(request.getToAccount())) {
+
+            throw new RuntimeException(
+                    "Cannot transfer to the same account"
+            );
+        }
+
+        Account sender =
+                getAccountByNumber(
+                        request.getFromAccount()
+                );
+
+        Account receiver =
+                getAccountByNumber(
+                        request.getToAccount()
+                );
+
+        checkAccountActive(sender);
+        checkAccountActive(receiver);
+
+        if (sender.getBalance() <
+                request.getAmount()) {
+
+            throw new RuntimeException(
+                    "Insufficient Balance"
+            );
+        }
+
+        sender.setBalance(
+                sender.getBalance()
+                        - request.getAmount()
+        );
+
+        receiver.setBalance(
+                receiver.getBalance()
+                        + request.getAmount()
+        );
 
         accountRepository.save(sender);
         accountRepository.save(receiver);
@@ -204,40 +269,65 @@ public class AccountService {
                 "SUCCESS"
         );
 
-        logger.info(
-                "Transfer Successful | From : {} | To : {} | Amount : {}",
-                request.getFromAccount(),
-                request.getToAccount(),
-                request.getAmount()
-        );
-
         return "Transfer Successful";
     }
 
-    // Balance Enquiry
-    public Double getBalance(String accountNumber) {
+    // ==============================
+    // BALANCE
+    // ==============================
 
-        Account account = accountRepository
-                .findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account Not Found"));
+    public Double getBalance(
+            String accountNumber) {
 
-        logger.info(
-                "Balance Enquiry | Account : {} | Balance : {}",
-                accountNumber,
-                account.getBalance()
-        );
+        Account account =
+                getAccountByNumber(accountNumber);
 
         return account.getBalance();
     }
-    public String deleteAccount(String accountNumber) {
 
-    Account account = accountRepository
-            .findByAccountNumber(accountNumber)
-            .orElseThrow(() ->
-                    new RuntimeException("Account not found"));
+    // ==============================
+    // DELETE ACCOUNT
+    // ==============================
 
-    accountRepository.delete(account);
+    public String deleteAccount(
+            String accountNumber) {
 
-    return "Account Deleted Successfully";
-}
+        Account account =
+                getAccountByNumber(accountNumber);
+
+        accountRepository.delete(account);
+
+        return "Account Deleted Successfully";
+    }
+
+    // ==============================
+    // VALIDATE AMOUNT
+    // ==============================
+
+    private void validateAmount(Double amount) {
+
+        if (amount == null ||
+                amount <= 0) {
+
+            throw new RuntimeException(
+                    "Amount must be greater than zero"
+            );
+        }
+    }
+
+    // ==============================
+    // CHECK ACCOUNT STATUS
+    // ==============================
+
+    private void checkAccountActive(
+            Account account) {
+
+        if (!"ACTIVE".equalsIgnoreCase(
+                account.getStatus())) {
+
+            throw new RuntimeException(
+                    "Account is blocked"
+            );
+        }
+    }
 }
