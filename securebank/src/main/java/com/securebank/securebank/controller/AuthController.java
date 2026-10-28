@@ -14,8 +14,9 @@ import com.securebank.securebank.service.AuthenticationService;
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = {
-        "http://localhost:5173",
-        "http://localhost:5176"
+    "http://localhost:5173",
+    "http://localhost:5176",
+    "https://secure-banking-system-zeta.vercel.app"
 })
 public class AuthController {
 

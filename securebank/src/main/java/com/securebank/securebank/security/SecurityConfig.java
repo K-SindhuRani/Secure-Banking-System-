@@ -1,3 +1,4 @@
+
 package com.securebank.securebank.security;
 
 import java.util.List;
@@ -39,17 +40,11 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // ==============================
-                        // PUBLIC APIs
-                        // ==============================
-
+                        // Public APIs
                         .requestMatchers("/auth/**")
                         .permitAll()
 
-                        .requestMatchers(
-                                HttpMethod.POST,
-                                "/users"
-                        )
+                        .requestMatchers(HttpMethod.POST, "/users")
                         .permitAll()
 
                         // Swagger
@@ -59,34 +54,22 @@ public class SecurityConfig {
                         )
                         .permitAll()
 
-                        // ==============================
-                        // ADMIN APIs
-                        // ==============================
-
+                        // Admin APIs
                         .requestMatchers("/admin/**")
                         .hasRole("ADMIN")
 
-                        // ==============================
-                        // CUSTOMER + ADMIN
-                        // ==============================
-
+                        // Customer and admin APIs
                         .requestMatchers(
                                 "/accounts/**",
                                 "/transactions/**"
                         )
                         .hasAnyRole("ADMIN", "CUSTOMER")
 
-                        // ==============================
-                        // USER PROFILE
-                        // ==============================
-
+                        // User profile
                         .requestMatchers("/users/profile")
                         .hasAnyRole("ADMIN", "CUSTOMER")
 
-                        // ==============================
-                        // EVERYTHING ELSE
-                        // ==============================
-
+                        // All remaining endpoints
                         .anyRequest()
                         .authenticated()
                 )
@@ -112,12 +95,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration configuration =
-                new CorsConfiguration();
+        CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "http://localhost:5176"
+                "http://localhost:5176",
+                "https://secure-banking-system-zeta.vercel.app"
         ));
 
         configuration.setAllowedMethods(List.of(
