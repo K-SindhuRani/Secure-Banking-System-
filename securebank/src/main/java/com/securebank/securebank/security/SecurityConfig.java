@@ -100,7 +100,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:5176",
-                "https://secure-banking-system-zeta.vercel.app"
+                "https://secure-banking-system-zeta.vercel.app",
+                "https://secure-banking-system-4gt8cfznm-sindhurani334-4189.vercel.app/"
         ));
 
         configuration.setAllowedMethods(List.of(
